@@ -97,7 +97,7 @@
             <div class="text-lg font-semibold text-red-800">
                 期數：<span id="issue-number"></span>
             </div>
-            <div class="text-lg font-semibold text-gray-500">
+            <div class="text-sm font-semibold text-gray-500">
                 上一期：<span id="previous-numbers">--</span>
             </div>
             <div class="text-lg font-semibold text-red-800">
@@ -361,66 +361,64 @@
         }
 
         function checkBetAndPay(winningNumbers) {
-            if (!userBet.amount) {
-                addToHistory(`本期未下注，餘額維持不變。`, winningNumbers);
-                updatePreviousNumbers(winningNumbers);
-                return;
-            }
-
             let totalWinnings = 0;
-            const betAmount = userBet.amount;
             let resultMessage = '很遺憾，您未中獎。';
+            
+            if (userBet.amount) {
+                const betAmount = userBet.amount;
+                const userSelections = {
+                    wan: userBet.wan,
+                    qian: userBet.qian,
+                    bai: userBet.bai,
+                    shi: userBet.shi,
+                    ge: userBet.ge
+                };
 
-            const userSelections = {
-                wan: userBet.wan,
-                qian: userBet.qian,
-                bai: userBet.bai,
-                shi: userBet.shi,
-                ge: userBet.ge
-            };
+                const isBig = num => num >= 5;
+                const isSmall = num => num < 5;
+                const isOdd = num => num % 2 !== 0;
+                const isEven = num => num % 2 === 0;
 
-            const isBig = num => num >= 5;
-            const isSmall = num => num < 5;
-            const isOdd = num => num % 2 !== 0;
-            const isEven = num => num % 2 === 0;
+                const winningShi = winningNumbers[3];
+                const winningGe = winningNumbers[4];
 
-            const winningShi = winningNumbers[3];
-            const winningGe = winningNumbers[4];
+                // Check for wins from highest to lowest prize tier
+                if (userSelections.wan && userSelections.qian && userSelections.bai && userSelections.shi && userSelections.ge &&
+                    userSelections.wan.includes(winningNumbers[0]) && userSelections.qian.includes(winningNumbers[1]) &&
+                    userSelections.bai.includes(winningNumbers[2]) && userSelections.shi.includes(winningNumbers[3]) &&
+                    userSelections.ge.includes(winningNumbers[4])) {
+                    totalWinnings = betAmount * 50000;
+                    resultMessage = `恭喜！五星中獎！獲得獎金五萬 倍。`;
+                } else if (userSelections.qian && userSelections.bai && userSelections.shi && userSelections.ge &&
+                    userSelections.qian.includes(winningNumbers[1]) && userSelections.bai.includes(winningNumbers[2]) &&
+                    userSelections.shi.includes(winningNumbers[3]) && userSelections.ge.includes(winningNumbers[4])) {
+                    totalWinnings = betAmount * 5000;
+                    resultMessage = `恭喜！四星中獎！獲得獎金五千 倍。`;
+                } else if (userSelections.bai && userSelections.shi && userSelections.ge &&
+                    userSelections.bai.includes(winningNumbers[2]) && userSelections.shi.includes(winningNumbers[3]) &&
+                    userSelections.ge.includes(winningNumbers[4])) {
+                    totalWinnings = betAmount * 500;
+                    resultMessage = `恭喜！三星中獎！獲得獎金五百 倍。`;
+                } else if (userSelections.shi && userSelections.ge &&
+                    userSelections.shi.includes(winningNumbers[3]) && userSelections.ge.includes(winningNumbers[4])) {
+                    totalWinnings = betAmount * 50;
+                    resultMessage = `恭喜！二星中獎！獲得獎金五十 倍。`;
+                } else if (userSelections.ge && userSelections.ge.includes(winningNumbers[4])) {
+                    totalWinnings = betAmount * 5;
+                    resultMessage = `恭喜！一星中獎！獲得獎金五 倍。`;
+                } else if ((userSelections.shi && ((isBig(winningShi) && userSelections.shi.some(n => isBig(n))) || (isSmall(winningShi) && userSelections.shi.some(n => isSmall(n))) || (isOdd(winningShi) && userSelections.shi.some(n => isOdd(n))) || (isEven(winningShi) && userSelections.shi.some(n => isEven(n))))) ||
+                        (userSelections.ge && ((isBig(winningGe) && userSelections.ge.some(n => isBig(n))) || (isSmall(winningGe) && userSelections.ge.some(n => isSmall(n))) || (isOdd(winningGe) && userSelections.ge.some(n => isOdd(n))) || (isEven(winningGe) && userSelections.ge.some(n => isEven(n)))))) {
+                    totalWinnings = betAmount * 2;
+                    resultMessage = `恭喜！大小單雙中獎！獲得獎金二 倍。`;
+                }
 
-            // Check for wins from highest to lowest prize tier
-            if (userSelections.wan && userSelections.qian && userSelections.bai && userSelections.shi && userSelections.ge &&
-                userSelections.wan.includes(winningNumbers[0]) && userSelections.qian.includes(winningNumbers[1]) &&
-                userSelections.bai.includes(winningNumbers[2]) && userSelections.shi.includes(winningNumbers[3]) &&
-                userSelections.ge.includes(winningNumbers[4])) {
-                totalWinnings = betAmount * 50000;
-                resultMessage = `恭喜！五星中獎！獲得獎金五萬 倍。`;
-            } else if (userSelections.qian && userSelections.bai && userSelections.shi && userSelections.ge &&
-                userSelections.qian.includes(winningNumbers[1]) && userSelections.bai.includes(winningNumbers[2]) &&
-                userSelections.shi.includes(winningNumbers[3]) && userSelections.ge.includes(winningNumbers[4])) {
-                totalWinnings = betAmount * 5000;
-                resultMessage = `恭喜！四星中獎！獲得獎金五千 倍。`;
-            } else if (userSelections.bai && userSelections.shi && userSelections.ge &&
-                userSelections.bai.includes(winningNumbers[2]) && userSelections.shi.includes(winningNumbers[3]) &&
-                userSelections.ge.includes(winningNumbers[4])) {
-                totalWinnings = betAmount * 500;
-                resultMessage = `恭喜！三星中獎！獲得獎金五百 倍。`;
-            } else if (userSelections.shi && userSelections.ge &&
-                userSelections.shi.includes(winningNumbers[3]) && userSelections.ge.includes(winningNumbers[4])) {
-                totalWinnings = betAmount * 50;
-                resultMessage = `恭喜！二星中獎！獲得獎金五十 倍。`;
-            } else if (userSelections.ge && userSelections.ge.includes(winningNumbers[4])) {
-                totalWinnings = betAmount * 5;
-                resultMessage = `恭喜！一星中獎！獲得獎金五 倍。`;
-            } else if ((userSelections.shi && ((isBig(winningShi) && userSelections.shi.some(n => isBig(n))) || (isSmall(winningShi) && userSelections.shi.some(n => isSmall(n))) || (isOdd(winningShi) && userSelections.shi.some(n => isOdd(n))) || (isEven(winningShi) && userSelections.shi.some(n => isEven(n))))) ||
-                       (userSelections.ge && ((isBig(winningGe) && userSelections.ge.some(n => isBig(n))) || (isSmall(winningGe) && userSelections.ge.some(n => isSmall(n))) || (isOdd(winningGe) && userSelections.ge.some(n => isOdd(n))) || (isEven(winningGe) && userSelections.ge.some(n => isEven(n)))))) {
-                totalWinnings = betAmount * 2;
-                resultMessage = `恭喜！大小單雙中獎！獲得獎金二 倍。`;
-            }
-
-            if (totalWinnings > 0) {
-                balance += totalWinnings;
+                if (totalWinnings > 0) {
+                    balance += totalWinnings;
+                } else {
+                    balance -= betAmount;
+                }
             } else {
-                balance -= betAmount;
+                resultMessage = `本期未下注，餘額維持不變。`;
             }
 
             balanceEl.textContent = balance.toFixed(2);
@@ -430,7 +428,7 @@
             userBet = {};
             randomNumberClickCount = 0;
             
-            // Wait 15 seconds before starting the next round
+            // Wait 5 seconds before starting the next round
             setTimeout(() => {
                 lotteryNumbersEl.innerHTML = `<div class="lottery-number bg-gray-400">-</div>
                     <div class="lottery-number bg-gray-400">-</div>
@@ -438,7 +436,7 @@
                     <div class="lottery-number bg-gray-400">-</div>
                     <div class="lottery-number bg-gray-400">-</div>`;
                 startCountdown();
-            }, 15000);
+            }, 5000);
         }
 
         function addToHistory(message, winningNumbers, userBet) {
