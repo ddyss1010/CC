@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>時時彩之嘻嘻哈哈</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            color: #2d3748;
+        }
+        .lottery-number-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .lottery-number {
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #fff;
+            background-color: #e53e3e;
+            border-radius: 9999px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .bet-option-btn {
+            font-size: 1.25rem;
+            font-weight: bold;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease-in-out;
+        }
+        .bet-option-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        .bet-option-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .number-selector-btn {
+            width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50%;
+            border: 2px solid #cbd5e0;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+        .number-selector-btn.selected {
+            background-color: #48bb78;
+            color: white;
+            border-color: #48bb78;
+            transform: scale(1.1);
+        }
+        .chip-btn {
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            color: white;
+            font-weight: bold;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: transform 0.1s ease-in-out;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+        .chip-btn:hover {
+            transform: scale(1.05);
+        }
+        .chip-btn:active {
+            transform: scale(1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center py-10 px-4">
+
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-2xl">
+        <h1 class="text-3xl font-bold text-center mb-6 text-red-600">時時彩之嘻嘻哈哈</h1>
+        
+        <div class="flex justify-between items-center mb-6 p-4 bg-red-100 rounded-lg shadow-inner">
+            <div class="text-lg font-semibold text-red-800">
+                期數：<span id="issue-number"></span>
+            </div>
+            <div class="text-lg font-semibold text-gray-500">
+                上一期：<span id="previous-numbers">--</span>
+            </div>
+            <div class="text-lg font-semibold text-red-800">
+                開獎倒數：<span id="countdown"></span>
+            </div>
+        </div>
+
+        <div class="mb-6 text-center">
+            <h2 class="text-2xl font-bold mb-4 text-gray-700">最新開獎號碼</h2>
+            <div id="lottery-numbers" class="lottery-number-container">
+                <div class="lottery-number bg-gray-400">-</div>
+                <div class="lottery-number bg-gray-400">-</div>
+                <div class="lottery-number bg-gray-400">-</div>
+                <div class="lottery-number bg-gray-400">-</div>
+                <div class="lottery-number bg-gray-400">-</div>
+            </div>
+        </div>
+        
+        <div class="p-6 bg-blue-100 rounded-xl shadow-inner mb-6">
+            <div class="text-xl font-bold text-center text-blue-800 mb-4">
+                您的餘額：$<span id="balance">1000</span>
+            </div>
+
+            <div class="text-center">
+                <p class="text-gray-700 mb-4 font-semibold">請選擇您要下注的號碼（或是大小奇偶）</p>
+                
+                <div class="flex flex-col md:flex-row items-center gap-4 mb-4">
+                    <div class="font-bold w-12 text-gray-700">萬位</div>
+                    <div class="flex flex-wrap gap-2 flex-grow justify-start" id="number-selector-wan"></div>
+                    <div class="flex flex-wrap gap-2 justify-end">
+                        <button class="text-sm px-2 py-1 border border-gray-400 rounded-full" onclick="selectNumbers('wan', 'all')">全</button>
+                        <button class="text-sm px-2 py-1 border border-gray-400 rounded-full" onclick="selectNumbers('wan', 'big')">大</button>
+                        <button class="text-sm px-2 py-1 border border-gray-400 rounded-full" onclick="selectNumbers('wan', 'small')">小</button>
+                        <button class="text-sm px-2 py-1 border border-gray-400 rounded-full" onclick="selectNumbers('wan', 'odd')">奇</button>
+                        <button class="text-sm px-2 py-1 border border-gray-400 rounded-full" onclick="selectNumbers('wan', 'even')">偶</button>
+                        <button class="text-sm px-2 py-1 font-bold border border-gray-400 rounded-full" onclick="selectNumbers('wan', 'clear')">清除</button>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row items-center gap-4 mb-4">
+                    <div class="font-bold w-12 text-gray-700">千位</div>
+                    <div class="flex flex-wrap gap-2 flex-grow justify-start" id="number-selector-qian"></div>
+                    <div class="flex flex-wrap gap-2 justify-end">
+                        <button class="text-sm px-2 py-1 border border-gray-400 rounded-full" onclick="selectNumbers('qian', 'all')">全</button>
+                        <button class="text-sm px-2 py-1 border border-gray-400 rounded-full" onclick="selectNumbers('qian', 'big')">大</button>
+                        <button class="text-sm px-2 py-1 border border-gray-400 rounded-full" onclick="selectNumbers('qian', 'small')">小</button>
+                        <button class="text-sm px-2 py-1 border border-gray-400 rounded-full" onclick="selectNumbers('qian', 'odd')">奇</button>
+                        <button class="text-sm px-2 py-1 border border-gray-400 rounded-full" onclick="selectNumbers('qian', 'even')">偶</button>
+                        <button class="text-sm px-2 py-1 font-bold border border-gray-400 rounded-full" onclick="selectNumbers('qian', 'clear')">清除</button>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row items-center gap-4 mb-4">
+                    <div class="font-bold w-12 text-gray-700">百位</div>
+                    <div class="flex flex-wrap gap-2 flex-grow justify-start" id="number-selector-bai"></div>
+                    <div class="flex flex-wrap gap-2 justify-end">
+                        <button class="text-sm px-2 py-1 border border-gray-400 rounded-full" onclick="selectNumbers('bai', 'all')">全</button>
+                        <button class="text-sm px-2 py-1 border border-gray-400 rounded-full" onclick="selectNumbers('bai', 'big')">大</button>
+                        <button class="text-sm px-2 py-1 border border-gray-400 rounded-full" onclick="selectNumbers('bai', 'small')">小</button>
+                        <button class="text-sm px-2 py-1 border border-gray-400 rounded-full" onclick="selectNumbers('bai', 'odd')">奇</button>
+                        <button class="text-sm px-2 py-1 border border-gray-400 rounded-full" onclick="selectNumbers('bai', 'even')">偶</button>
+                        <button class="text-sm px-2 py-1 font-bold border border-gray-400 rounded-full" onclick="selectNumbers('bai', 'clear')">清除</button>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row items-center gap-4 mb-4">
+                    <div class="font-bold w-12 text-gray-700">十位</div>
+                    <div class="flex flex-wrap gap-2 flex-grow justify-start" id="number-selector-shi"></div>
+                    <div class="flex flex-wrap gap-2 justify-end">
+                        <button class="text-sm px-2 py-1 border border-gray-400 rounded-full" onclick="selectNumbers('shi', 'all')">全</button>
+                        <button class="text-sm px-2 py-1 border border-gray-400 rounded-full" onclick="selectNumbers('shi', 'big')">大</button>
+                        <button class="text-sm px-2 py-1 border border-gray-400 rounded-full" onclick="selectNumbers('shi', 'small')">小</button>
+                        <button class="text-sm px-2 py-1 border border-gray-400 rounded-full" onclick="selectNumbers('shi', 'odd')">奇</button>
+                        <button class="text-sm px-2 py-1 border border-gray-400 rounded-full" onclick="selectNumbers('shi', 'even')">偶</button>
+                        <button class="text-sm px-2 py-1 font-bold border border-gray-400 rounded-full" onclick="selectNumbers('shi', 'clear')">清除</button>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row items-center gap-4 mb-4">
+                    <div class="font-bold w-12 text-gray-700">個位</div>
+                    <div class="flex flex-wrap gap-2 flex-grow justify-start" id="number-selector-ge"></div>
+                    <div class="flex flex-wrap gap-2 justify-end">
+                        <button class="text-sm px-2 py-1 border border-gray-400 rounded-full" onclick="selectNumbers('ge', 'all')">全</button>
+                        <button class="text-sm px-2 py-1 border border-gray-400 rounded-full" onclick="selectNumbers('ge', 'big')">大</button>
+                        <button class="text-sm px-2 py-1 border border-gray-400 rounded-full" onclick="selectNumbers('ge', 'small')">小</button>
+                        <button class="text-sm px-2 py-1 border border-gray-400 rounded-full" onclick="selectNumbers('ge', 'odd')">奇</button>
+                        <button class="text-sm px-2 py-1 border border-gray-400 rounded-full" onclick="selectNumbers('ge', 'even')">偶</button>
+                        <button class="text-sm px-2 py-1 font-bold border border-gray-400 rounded-full" onclick="selectNumbers('ge', 'clear')">清除</button>
+                    </div>
+                </div>
+
+                <div class="mb-4 mt-6 text-center">
+                    <label for="bet-amount" class="block text-gray-700 font-semibold mb-2">下注金額:</label>
+                    <div class="flex items-center justify-center gap-2">
+                        <button class="chip-btn bg-green-500" onclick="setBetAmount(10)">$10</button>
+                        <button class="chip-btn bg-green-700" onclick="setBetAmount(100)">$100</button>
+                        <input type="number" id="bet-amount" value="100" min="1" class="w-24 p-2 text-center rounded-lg border-2 border-gray-300 focus:outline-none focus:border-blue-500">
+                        <button class="chip-btn bg-blue-600" onclick="setBetAmount(1000)">$1000</button>
+                        <button class="chip-btn bg-blue-700" onclick="setBetAmount(5000)">$5000</button>
+                    </div>
+                </div>
+                
+                <button id="random-number-btn" class="bet-option-btn bg-yellow-500 text-white hover:bg-yellow-600 mb-4">
+                    🎲隨機選號
+                </button>
+                
+                <button id="place-bet-btn" class="bet-option-btn bg-blue-500 text-white hover:bg-blue-600">
+                    確認下注
+                </button>
+            </div>
+        </div>
+
+        <div id="message-box" class="fixed top-10 right-4 p-4 rounded-lg text-white shadow-lg transition-transform duration-300 transform translate-x-full z-50" style="background-color: #38a169;">
+        </div>
+
+        <div class="w-full max-w-2xl mt-8">
+            <h2 class="text-xl font-bold mb-4 text-gray-700">開獎歷史</h2>
+            <div id="history-log" class="bg-gray-200 p-4 rounded-lg h-48 overflow-y-scroll">
+            </div>
+        </div>
+        
+        <div class="bg-gray-200 p-6 rounded-xl shadow-inner mt-8 w-full max-w-2xl">
+            <h2 class="text-2xl font-bold text-gray-700 mb-4">時時彩遊戲規則</h2>
+            <div class="space-y-4 text-gray-800">
+                <div>
+                    <h3 class="font-bold text-lg mb-2">「星彩玩法」</h3>
+                    <p>「時時彩」每期開獎號碼為五位數號碼，分為萬位、千位、百位、十位、個位。</p>
+                    <ul class="list-disc list-inside ml-4 space-y-2">
+                        <li>**一星**：採用開獎號的<strong>個位</strong>。單注中獎為投注金額的五倍。</li>
+                        <li>**二星**：採用開獎號的<strong>十位、個位</strong>。單注中獎為投注金額的五十倍。</li>
+                        <li>**三星**：採用開獎號的<strong>百位、十位、個位</strong>。單注中獎為投注金額的五百倍。</li>
+                        <li>**四星**：採用開獎號的<strong>千位、百位、十位、個位</strong>。單注中獎為投注金額的五千倍。</li>
+                        <li>**五星**：採用開獎號的<strong>萬位、千位、百位、十位、個位</strong>。單注中獎為投注金額的五萬倍。</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg mb-2">「大小單雙玩法」</h3>
+                    <p>此玩法針對「個位」和「十位」的數字進行「大小、單雙」投注。單注中獎為投注金額的兩倍。</p>
+                    <ul class="list-disc list-inside ml-4 space-y-2">
+                        <li>**大小**：0-4為小號，5-9為大號。</li>
+                        <li>**單雙**：0、2、4、6、8為雙號，1、3、5、7、9為單號。</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let balance = 1000;
+        let issueNumber = 100001;
+        let countdown = 30;
+        let countdownInterval;
+        let selectedNumbers = {
+            'wan': [],
+            'qian': [],
+            'bai': [],
+            'shi': [],
+            'ge': []
+        };
+        let userBet = {};
+        let randomNumberClickCount = 0;
+        const totalRounds = 100;
+        let roundsPlayed = 0;
+
+        const issueNumberEl = document.getElementById('issue-number');
+        const countdownEl = document.getElementById('countdown');
+        const lotteryNumbersEl = document.getElementById('lottery-numbers');
+        const balanceEl = document.getElementById('balance');
+        const historyLogEl = document.getElementById('history-log');
+        const betAmountEl = document.getElementById('bet-amount');
+        const placeBetBtn = document.getElementById('place-bet-btn');
+        const randomNumberBtn = document.getElementById('random-number-btn');
+        const messageBoxEl = document.getElementById('message-box');
+        const previousNumbersEl = document.getElementById('previous-numbers');
+
+        // Mapping for Arabic number characters
+        const arabicNumbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+        function setBetAmount(amount) {
+            betAmountEl.value = amount;
+        }
+
+        const positions = ['wan', 'qian', 'bai', 'shi', 'ge'];
+        positions.forEach(pos => {
+            const selectorEl = document.getElementById(`number-selector-${pos}`);
+            for (let i = 0; i < 10; i++) {
+                const btn = document.createElement('button');
+                btn.textContent = i;
+                btn.classList.add('number-selector-btn');
+                btn.addEventListener('click', () => toggleNumberSelection(pos, i, btn));
+                selectorEl.appendChild(btn);
+            }
+        });
+
+        function showMessage(message, type = 'success') {
+            let bgColor = '#38a169';
+            if (type === 'error') {
+                bgColor = '#e53e3e';
+            } else if (type === 'info') {
+                bgColor = '#4299e1';
+            }
+            messageBoxEl.style.backgroundColor = bgColor;
+            messageBoxEl.textContent = message;
+            messageBoxEl.classList.remove('translate-x-full');
+            
+            setTimeout(() => {
+                messageBoxEl.classList.add('translate-x-full');
+            }, 3000);
+        }
+
+        function toggleNumberSelection(position, number, button) {
+            const index = selectedNumbers[position].indexOf(number);
+            if (index > -1) {
+                selectedNumbers[position].splice(index, 1);
+                button.classList.remove('selected');
+            } else {
+                selectedNumbers[position].push(number);
+                button.classList.add('selected');
+            }
+        }
+        
+        function selectNumbers(position, type) {
+            const numbers = [];
+            const selectorEl = document.getElementById(`number-selector-${position}`);
+            const buttons = selectorEl.querySelectorAll('.number-selector-btn');
+
+            buttons.forEach(btn => btn.classList.remove('selected'));
+            selectedNumbers[position] = [];
+
+            if (type === 'all') {
+                for (let i = 0; i < 10; i++) numbers.push(i);
+            } else if (type === 'big') {
+                for (let i = 5; i <= 9; i++) numbers.push(i);
+            } else if (type === 'small') {
+                for (let i = 0; i <= 4; i++) numbers.push(i);
+            } else if (type === 'odd') {
+                for (let i = 1; i <= 9; i += 2) numbers.push(i);
+            } else if (type === 'even') {
+                for (let i = 0; i <= 8; i += 2) numbers.push(i);
+            } else if (type === 'clear') {
+            }
+
+            numbers.forEach(num => {
+                selectedNumbers[position].push(num);
+                buttons[num].classList.add('selected');
+            });
+        }
+        
+        function updateLotteryNumbers(numbers) {
+            lotteryNumbersEl.innerHTML = numbers.map(num => `<div class="lottery-number">${num}</div>`).join('');
+            setTimeout(() => {
+                lotteryNumbersEl.innerHTML = `<div class="lottery-number bg-gray-400">-</div>
+                    <div class="lottery-number bg-gray-400">-</div>
+                    <div class="lottery-number bg-gray-400">-</div>
+                    <div class="lottery-number bg-gray-400">-</div>
+                    <div class="lottery-number bg-gray-400">-</div>`;
+            }, 5000); // Numbers shown for 5 seconds
+        }
+        
+        function updatePreviousNumbers(numbers) {
+            const formattedNumbers = numbers.map(num => `<span class="text-gray-500">${arabicNumbers[num]}</span>`).join(' ');
+            previousNumbersEl.innerHTML = formattedNumbers;
+        }
+
+        function checkBetAndPay(winningNumbers) {
+            if (!userBet.amount) {
+                addToHistory(`本期未下注，餘額維持不變。`, winningNumbers);
+                updatePreviousNumbers(winningNumbers);
+                return;
+            }
+
+            let totalWinnings = 0;
+            const betAmount = userBet.amount;
+            let resultMessage = '很遺憾，您未中獎。';
+
+            const userSelections = {
+                wan: userBet.wan,
+                qian: userBet.qian,
+                bai: userBet.bai,
+                shi: userBet.shi,
+                ge: userBet.ge
+            };
+
+            const isBig = num => num >= 5;
+            const isSmall = num => num < 5;
+            const isOdd = num => num % 2 !== 0;
+            const isEven = num => num % 2 === 0;
+
+            const winningShi = winningNumbers[3];
+            const winningGe = winningNumbers[4];
+
+            // Check for wins from highest to lowest prize tier
+            if (userSelections.wan && userSelections.qian && userSelections.bai && userSelections.shi && userSelections.ge &&
+                userSelections.wan.includes(winningNumbers[0]) && userSelections.qian.includes(winningNumbers[1]) &&
+                userSelections.bai.includes(winningNumbers[2]) && userSelections.shi.includes(winningNumbers[3]) &&
+                userSelections.ge.includes(winningNumbers[4])) {
+                totalWinnings = betAmount * 50000;
+                resultMessage = `恭喜！五星中獎！獲得獎金五萬 倍。`;
+            } else if (userSelections.qian && userSelections.bai && userSelections.shi && userSelections.ge &&
+                userSelections.qian.includes(winningNumbers[1]) && userSelections.bai.includes(winningNumbers[2]) &&
+                userSelections.shi.includes(winningNumbers[3]) && userSelections.ge.includes(winningNumbers[4])) {
+                totalWinnings = betAmount * 5000;
+                resultMessage = `恭喜！四星中獎！獲得獎金五千 倍。`;
+            } else if (userSelections.bai && userSelections.shi && userSelections.ge &&
+                userSelections.bai.includes(winningNumbers[2]) && userSelections.shi.includes(winningNumbers[3]) &&
+                userSelections.ge.includes(winningNumbers[4])) {
+                totalWinnings = betAmount * 500;
+                resultMessage = `恭喜！三星中獎！獲得獎金五百 倍。`;
+            } else if (userSelections.shi && userSelections.ge &&
+                userSelections.shi.includes(winningNumbers[3]) && userSelections.ge.includes(winningNumbers[4])) {
+                totalWinnings = betAmount * 50;
+                resultMessage = `恭喜！二星中獎！獲得獎金五十 倍。`;
+            } else if (userSelections.ge && userSelections.ge.includes(winningNumbers[4])) {
+                totalWinnings = betAmount * 5;
+                resultMessage = `恭喜！一星中獎！獲得獎金五 倍。`;
+            } else if ((userSelections.shi && ((isBig(winningShi) && userSelections.shi.some(n => isBig(n))) || (isSmall(winningShi) && userSelections.shi.some(n => isSmall(n))) || (isOdd(winningShi) && userSelections.shi.some(n => isOdd(n))) || (isEven(winningShi) && userSelections.shi.some(n => isEven(n))))) ||
+                       (userSelections.ge && ((isBig(winningGe) && userSelections.ge.some(n => isBig(n))) || (isSmall(winningGe) && userSelections.ge.some(n => isSmall(n))) || (isOdd(winningGe) && userSelections.ge.some(n => isOdd(n))) || (isEven(winningGe) && userSelections.ge.some(n => isEven(n)))))) {
+                totalWinnings = betAmount * 2;
+                resultMessage = `恭喜！大小單雙中獎！獲得獎金二 倍。`;
+            }
+
+            if (totalWinnings > 0) {
+                balance += totalWinnings;
+            } else {
+                balance -= betAmount;
+            }
+
+            balanceEl.textContent = balance.toFixed(2);
+            addToHistory(resultMessage, winningNumbers, userBet);
+            updatePreviousNumbers(winningNumbers);
+            
+            userBet = {};
+            randomNumberClickCount = 0;
+            
+            roundsPlayed++;
+            if (roundsPlayed >= totalRounds) {
+                clearInterval(countdownInterval);
+                showMessage(`遊戲結束。您已完成 ${totalRounds} 期，最終餘額為 $${balance.toFixed(2)}。`, 'info');
+                placeBetBtn.disabled = true;
+                randomNumberBtn.disabled = true;
+                return;
+            }
+            
+            // Wait 15 seconds before starting the next round
+            setTimeout(() => {
+                lotteryNumbersEl.innerHTML = `<div class="lottery-number bg-gray-400">-</div>
+                    <div class="lottery-number bg-gray-400">-</div>
+                    <div class="lottery-number bg-gray-400">-</div>
+                    <div class="lottery-number bg-gray-400">-</div>
+                    <div class="lottery-number bg-gray-400">-</div>`;
+                startCountdown();
+            }, 15000);
+        }
+
+        function addToHistory(message, winningNumbers, userBet) {
+            const entry = document.createElement('p');
+            let betInfo = '';
+            
+            if (userBet && userBet.amount) {
+                const betNumbers = [];
+                // Collect selected numbers from each position
+                positions.forEach(pos => {
+                    if (userBet[pos] && userBet[pos].length > 0) {
+                        userBet[pos].forEach(num => betNumbers.push(num));
+                    }
+                });
+                
+                if (betNumbers.length > 0) {
+                    const formattedBetNumbers = betNumbers.map(num => arabicNumbers[num]).join(' ');
+                    betInfo = `<br>下注號碼: ${formattedBetNumbers}`;
+                }
+            }
+            
+            // Format winning numbers with Arabic numbers
+            const winningNumbersFormatted = winningNumbers.map(num => arabicNumbers[num]).join(' ');
+
+            entry.innerHTML = `[${new Date().toLocaleTimeString()}]<br>開獎號碼: ${winningNumbersFormatted}${betInfo}<br>${message}`;
+            entry.classList.add('text-sm', 'text-gray-600', 'mb-1');
+            historyLogEl.prepend(entry);
+            if (historyLogEl.children.length > 10) {
+                historyLogEl.lastElementChild.remove();
+            }
+        }
+        
+        function generateLotteryNumbers(isCheating) {
+            const numbers = [];
+            if (isCheating && userBet.ge && userBet.shi && userBet.bai) {
+                numbers.push(Math.floor(Math.random() * 10)); 
+                numbers.push(Math.floor(Math.random() * 10)); 
+                numbers.push(userBet.bai[Math.floor(Math.random() * userBet.bai.length)]);
+                numbers.push(userBet.shi[Math.floor(Math.random() * userBet.shi.length)]);
+                numbers.push(userBet.ge[Math.floor(Math.random() * userBet.ge.length)]);
+            } else {
+                for (let i = 0; i < 5; i++) {
+                    numbers.push(Math.floor(Math.random() * 10));
+                }
+            }
+            return numbers;
+        }
+
+        function startCountdown() {
+            countdown = 30;
+            issueNumber++;
+            issueNumberEl.textContent = issueNumber;
+
+            positions.forEach(pos => selectNumbers(pos, 'clear'));
+
+            lotteryNumbersEl.innerHTML = `<div class="lottery-number bg-gray-400">-</div>
+                <div class="lottery-number bg-gray-400">-</div>
+                <div class="lottery-number bg-gray-400">-</div>
+                <div class="lottery-number bg-gray-400">-</div>
+                <div class="lottery-number bg-gray-400">-</div>`;
+
+            countdownInterval = setInterval(() => {
+                countdown--;
+                const minutes = Math.floor(countdown / 60);
+                const seconds = countdown % 60;
+                countdownEl.textContent = `${minutes}分 ${seconds}秒`;
+
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    
+                    const winningNumbers = generateLotteryNumbers(userBet.cheat);
+                    
+                    updateLotteryNumbers(winningNumbers);
+                    checkBetAndPay(winningNumbers);
+                }
+            }, 1000);
+        }
+
+        placeBetBtn.addEventListener('click', () => {
+            const betAmount = parseInt(betAmountEl.value, 10);
+            
+            const hasSelected = positions.some(pos => selectedNumbers[pos].length > 0);
+            if (!hasSelected) {
+                showMessage('請至少選擇一個號碼!', 'error');
+                return;
+            }
+            if (betAmount <= 0 || isNaN(betAmount)) {
+                showMessage('下注金額必須大於0!', 'error');
+                return;
+            }
+            if (balance < betAmount) {
+                showMessage('餘額不足，無法下注。', 'error');
+                return;
+            }
+            
+            userBet.amount = betAmount;
+            if (randomNumberClickCount >= 7) {
+                userBet.cheat = true;
+                showMessage(`秘密功能已啟動，下局開獎號碼保證中獎！`, 'info');
+            }
+            
+            positions.forEach(pos => {
+                if (selectedNumbers[pos].length > 0) {
+                    userBet[pos] = [...selectedNumbers[pos]];
+                }
+            });
+            
+            balance -= betAmount;
+            balanceEl.textContent = balance.toFixed(2);
+            showMessage(`您已成功下注 ${betAmount} 元，等待開獎...`);
+        });
+
+        randomNumberBtn.addEventListener('click', () => {
+            randomNumberClickCount++;
+            showMessage('正在為您隨機選號...', 'info');
+
+            positions.forEach(pos => selectNumbers(pos, 'clear'));
+
+            positions.forEach(pos => {
+                const randomNumber = Math.floor(Math.random() * 10);
+                const selectorEl = document.getElementById(`number-selector-${pos}`);
+                const buttons = Array.from(selectorEl.children).filter(child => child.classList.contains('number-selector-btn'));
+                const btn = buttons[randomNumber];
+                if (btn) {
+                    btn.click();
+                }
+            });
+
+            showMessage('隨機號碼已為您選好！', 'success');
+        });
+
+
+        window.onload = function() {
+            startCountdown();
+            balanceEl.textContent = balance;
+        };
+    </script>
+</body>
+</html>
+ 
