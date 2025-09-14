@@ -122,7 +122,7 @@
             </div>
 
             <div class="text-center">
-                <p class="text-gray-700 mb-4 font-semibold">請選擇您要下注的號碼（或是大小奇偶）</p>
+                <p class="text-gray-700 mb-4 font-semibold">請選擇您要下注的號碼（ 大 小 奇 偶）</p>
                 
                 <div class="flex flex-col md:flex-row items-center gap-4 mb-4">
                     <div class="font-bold w-12 text-gray-700">萬位</div>
@@ -259,8 +259,6 @@
         };
         let userBet = {};
         let randomNumberClickCount = 0;
-        const totalRounds = 100;
-        let roundsPlayed = 0;
 
         const issueNumberEl = document.getElementById('issue-number');
         const countdownEl = document.getElementById('countdown');
@@ -432,15 +430,6 @@
             userBet = {};
             randomNumberClickCount = 0;
             
-            roundsPlayed++;
-            if (roundsPlayed >= totalRounds) {
-                clearInterval(countdownInterval);
-                showMessage(`遊戲結束。您已完成 ${totalRounds} 期，最終餘額為 $${balance.toFixed(2)}。`, 'info');
-                placeBetBtn.disabled = true;
-                randomNumberBtn.disabled = true;
-                return;
-            }
-            
             // Wait 15 seconds before starting the next round
             setTimeout(() => {
                 lotteryNumbersEl.innerHTML = `<div class="lottery-number bg-gray-400">-</div>
@@ -561,7 +550,6 @@
             balanceEl.textContent = balance.toFixed(2);
             showMessage(`您已成功下注 ${betAmount} 元，等待開獎...`);
         });
-
         randomNumberBtn.addEventListener('click', () => {
             randomNumberClickCount++;
             showMessage('正在為您隨機選號...', 'info');
@@ -589,4 +577,3 @@
     </script>
 </body>
 </html>
- 
